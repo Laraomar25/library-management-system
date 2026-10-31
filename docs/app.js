@@ -76,7 +76,7 @@
   }
 
   function coverHTML(book, alt = true) {
-    if (book && book.cover) return `<img src="${esc(book.cover)}" alt="${alt ? "Cover of " + esc(book.title) : ""}" loading="lazy">`;
+    if (book && book.cover) return `<img src="${esc(book.cover)}" alt="${alt ? "Cover of " + esc(book.title) : ""}">`;
     return `<span class="ph">${esc(book ? book.title : "No cover")}</span>`;
   }
   const bookById = id => db.books.find(b => b.id === id);
