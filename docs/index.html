@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ravān Library</title>
+  <meta name="description" content="Ravān Library: a library management app. Add books, lend them out, take them back and see books by genre.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232E4053'/%3E%3Cpath d='M9 8h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H9zM23 8h-2a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H23z' fill='%23FFDAB9'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Splash (like the desktop app's loading screen) -->
+  <section id="splash" class="splash" aria-label="Loading">
+    <div class="splash-inner">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <h1 class="splash-title">Ravān Library</h1>
+      <p class="splash-tag">In every book, a new world awaits.</p>
+      <div class="splash-bar" role="progressbar" aria-label="Loading"><span></span></div>
+    </div>
+  </section>
+
+  <!-- Sign in / sign up -->
+  <section id="auth" class="auth" hidden>
+    <div class="auth-art" aria-hidden="true">
+      <div class="auth-art-inner">
+        <div class="brand-mark big"></div>
+        <p class="auth-art-title">Ravān</p>
+        <p class="auth-art-tag">In every book, a new world awaits.</p>
+      </div>
+    </div>
+
+    <div class="auth-panel">
+      <form id="loginForm" class="auth-form" novalidate>
+        <h2>Welcome back</h2>
+        <p class="muted">Sign in to manage the library.</p>
+        <label>Username <input name="username" autocomplete="username" required></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="btn primary" type="submit">Login</button>
+        <button class="btn ghost" type="button" data-demo>Try the demo account</button>
+        <p class="switch">No account yet? <button type="button" class="link" data-go="register">Create one</button></p>
+      </form>
+
+      <form id="registerForm" class="auth-form" novalidate hidden>
+        <h2>Create an account</h2>
+        <p class="muted">It only takes a moment.</p>
+        <label>Username <input name="username" autocomplete="username" required></label>
+        <label>Email <input name="email" type="email" autocomplete="email" required></label>
+        <label>Password <input name="password" type="password" autocomplete="new-password" required></label>
+        <button class="btn primary" type="submit">Register</button>
+        <button class="btn ghost" type="button" data-demo>Try the demo account</button>
+        <p class="switch">Already have an account? <button type="button" class="link" data-go="login">Login</button></p>
+      </form>
+
+      <p class="demo-note">This is a web demo. Everything you add is saved in your own browser only.</p>
+    </div>
+  </section>
+
+  <!-- App -->
+  <div id="app" class="app" hidden>
+    <aside class="sidebar">
+      <div class="side-brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <span>Ravān Library</span>
+      </div>
+      <nav class="side-nav" aria-label="Main">
+        <button data-view="home" class="nav-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+        <button data-view="books" class="nav-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4v16H5zM10 4h4v16h-4zM15.5 4.5l3.8-1 3.7 15.5-3.8 1z"/></svg>Add Book</button>
+        <button data-view="issue" class="nav-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h12M12 7l5 5-5 5M20 4v16"/></svg>Issue Book</button>
+        <button data-view="return" class="nav-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H8M12 7l-5 5 5 5M4 4v16"/></svg>Return Book</button>
+        <button data-view="chart" class="nav-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Show Chart</button>
+      </nav>
+      <button id="logoutBtn" class="nav-btn logout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg>Log Out</button>
+    </aside>
+
+    <main class="main">
+      <!-- Home -->
+      <section data-page="home" class="page">
+        <header class="page-head">
+          <p class="eyebrow">Welcome!</p>
+          <h1 id="helloName">Hello</h1>
+          <p class="muted">In every book, a new world awaits.</p>
+        </header>
+        <div class="stats">
+          <div class="stat"><span class="stat-num" id="statTitles">0</span><span class="stat-label">Book titles</span></div>
+          <div class="stat"><span class="stat-num" id="statCopies">0</span><span class="stat-label">Copies on the shelf</span></div>
+          <div class="stat"><span class="stat-num" id="statIssued">0</span><span class="stat-label">Books on loan</span></div>
+          <div class="stat"><span class="stat-num" id="statOverdue">0</span><span class="stat-label">Overdue</span></div>
+        </div>
+        <div class="tiles">
+          <button class="tile" data-view="books"><strong>Add Book</strong><span>Add, edit and remove books and covers</span></button>
+          <button class="tile" data-view="issue"><strong>Issue Book</strong><span>Lend a book to a student</span></button>
+          <button class="tile" data-view="return"><strong>Return Book</strong><span>Take a book back by student ID</span></button>
+          <button class="tile" data-view="chart"><strong>Show Chart</strong><span>See how many books are in each genre</span></button>
+        </div>
+        <h2 class="section-title">On the shelf</h2>
+        <div id="shelf" class="shelf"></div>
+      </section>
+
+      <!-- Books -->
+      <section data-page="books" class="page" hidden>
+        <header class="page-head"><h1>Add Book</h1><p class="muted">Click a book in the list to edit or delete it.</p></header>
+        <div class="split">
+          <form id="bookForm" class="card form" novalidate>
+            <div class="cover-pick">
+              <div class="cover-preview" id="bookCoverPreview"><span>No cover</span></div>
+              <label class="btn ghost small file-btn">Choose cover
+                <input type="file" id="bookCoverInput" accept="image/png,image/jpeg,image/webp,image/bmp">
+              </label>
+            </div>
+            <label>Book Title: <input name="title" required></label>
+            <label>Author: <input name="author" required></label>
+            <label>Genre: <input name="genre" list="genreList" required></label>
+            <datalist id="genreList"></datalist>
+            <label>Quantity: <input name="quantity" type="number" min="0" step="1" required></label>
+            <div class="btn-row">
+              <button class="btn primary" type="submit" data-action="add">ADD</button>
+              <button class="btn" type="button" data-action="update">UPDATE</button>
+              <button class="btn danger" type="button" data-action="delete">DELETE</button>
+              <button class="btn ghost" type="button" data-action="clear">Clear</button>
+            </div>
+          </form>
+          <div class="card table-card">
+            <div class="table-head">
+              <h2>Available Books:</h2>
+              <input type="search" id="bookSearch" placeholder="Search books" aria-label="Search books">
+            </div>
+            <div class="table-wrap">
+              <table class="table" id="booksTable">
+                <thead><tr><th>ID</th><th>Title</th><th>Author</th><th>Genre</th><th class="num">Qty</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Issue -->
+      <section data-page="issue" class="page" hidden>
+        <header class="page-head"><h1>Issue Book</h1><p class="muted">Find the book by its title, then fill in the borrower.</p></header>
+        <div class="split">
+          <form id="issueForm" class="card form" novalidate>
+            <div class="search-row">
+              <input id="issueSearch" list="titleList" placeholder="Book title, e.g. The Hobbit" aria-label="Book title">
+              <datalist id="titleList"></datalist>
+              <button class="btn" type="button" id="issueSearchBtn">Search</button>
+            </div>
+            <div class="found" id="issueFound" hidden>
+              <div class="cover-preview small" id="issueCover"></div>
+              <dl>
+                <dt>Title</dt><dd id="issueTitle"></dd>
+                <dt>Author</dt><dd id="issueAuthor"></dd>
+                <dt>In stock</dt><dd id="issueQty"></dd>
+              </dl>
+            </div>
+            <label>Student name <input name="name" required></label>
+            <div class="two">
+              <label>Student ID <input name="sid" required></label>
+              <label>Phone <input name="phone" type="tel" required></label>
+            </div>
+            <div class="two">
+              <label>Issue date <input name="issueDate" type="date" required></label>
+              <label>Return date <input name="returnDate" type="date" required></label>
+            </div>
+            <div class="btn-row"><button class="btn primary" type="submit">Issue Book</button></div>
+          </form>
+          <div class="card table-card">
+            <div class="table-head"><h2>Issued books</h2></div>
+            <div class="table-wrap">
+              <table class="table" id="issuedTable">
+                <thead><tr><th>Book</th><th>Student</th><th>ID</th><th>Phone</th><th>Issued</th><th>Due</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Return -->
+      <section data-page="return" class="page" hidden>
+        <header class="page-head"><h1>Return Book</h1><p class="muted">Search by the student's ID, or click a row in the list.</p></header>
+        <div class="split">
+          <form id="returnForm" class="card form" novalidate>
+            <div class="search-row">
+              <input id="returnSearch" placeholder="Student ID" aria-label="Student ID">
+              <button class="btn" type="button" id="returnSearchBtn">Search</button>
+            </div>
+            <div class="found" id="returnFound" hidden>
+              <div class="cover-preview small" id="returnCover"></div>
+              <dl>
+                <dt>Book</dt><dd id="returnTitle"></dd>
+                <dt>Student</dt><dd id="returnName"></dd>
+                <dt>Phone</dt><dd id="returnPhone"></dd>
+                <dt>Issued</dt><dd id="returnIssued"></dd>
+                <dt>Due</dt><dd id="returnDue"></dd>
+              </dl>
+            </div>
+            <div class="btn-row"><button class="btn primary" type="submit">Mark as returned</button></div>
+          </form>
+          <div class="card table-card">
+            <div class="table-head"><h2>Books on loan</h2></div>
+            <div class="table-wrap">
+              <table class="table" id="returnTable">
+                <thead><tr><th>Book</th><th>Student</th><th>ID</th><th>Phone</th><th>Issued</th><th>Due</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chart -->
+      <section data-page="chart" class="page" hidden>
+        <header class="page-head"><h1>Books by Genre</h1><p class="muted">Number of book titles in each genre.</p></header>
+        <div class="card chart-card">
+          <div class="chart-tools">
+            <div class="seg" role="group" aria-label="View">
+              <button class="seg-btn active" data-chartview="chart" aria-pressed="true">Chart</button>
+              <button class="seg-btn" data-chartview="table" aria-pressed="false">Table</button>
+            </div>
+          </div>
+          <div id="chartBox" class="chart-box"></div>
+          <div id="chartTip" class="chart-tip" hidden></div>
+          <table class="table" id="chartTable" hidden>
+            <thead><tr><th>Genre</th><th class="num">Titles</th><th class="num">Copies</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <button class="link" id="resetBtn" type="button">Reset demo data</button>
+        <span>·</span>
+        <a class="link" href="https://github.com/Laraomar25/library-management-system" target="_blank" rel="noopener">Source code</a>
+        <span>·</span>
+        <a class="link" href="https://laraomar25.github.io/" target="_blank" rel="noopener">Made by Lara Alothmani</a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Bottom nav on phones -->
+  <nav class="mobile-nav" id="mobileNav" aria-label="Main" hidden>
+    <button data-view="home" class="nav-btn">Home</button>
+    <button data-view="books" class="nav-btn">Books</button>
+    <button data-view="issue" class="nav-btn">Issue</button>
+    <button data-view="return" class="nav-btn">Return</button>
+    <button data-view="chart" class="nav-btn">Chart</button>
+  </nav>
+
+  <dialog id="confirmDialog" class="dialog">
+    <form method="dialog">
+      <h2 id="confirmTitle">Are you sure?</h2>
+      <p id="confirmText"></p>
+      <div class="btn-row end">
+        <button class="btn ghost" value="no">No</button>
+        <button class="btn primary" value="yes">Yes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
